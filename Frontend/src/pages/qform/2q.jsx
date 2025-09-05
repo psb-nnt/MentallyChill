@@ -14,6 +14,7 @@ const TwoQForm = () => {
   const [answers, setAnswers] = useState({
     q1: null,
     q2: null,
+    qplus: null,
   });
   const [uid, setUid] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,16 @@ const TwoQForm = () => {
       setUid(storedUid);
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      answers.q1 === false &&
+      answers.q2 === false &&
+      answers.qplus !== null
+    ) {
+      setAnswers((prev) => ({ ...prev, qplus: null }));
+    }
+  }, [answers.q1, answers.q2]);
 
   const handleRadioChange = (question, value) => {
     setAnswers((prev) => ({
@@ -46,6 +57,15 @@ const TwoQForm = () => {
       return;
     }
 
+    if ((answers.q1 || answers.q2) && answers.qplus === null) {
+      toast.error("โปรดตอบคำถามให้ครบทุกข้อ!", {
+        position: "top-right",
+        hideProgressBar: true,
+        style: { fontSize: "16px", fontFamily: "ChulabhornLikitText-Regular" },
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -61,6 +81,7 @@ const TwoQForm = () => {
       });
 
       localStorage.setItem("2qAnswers", JSON.stringify(answers));
+      /* console.log("2Q Answers saved:", payload); */
 
       // Navigate based on answers
       if (answers.q1 || answers.q2) {
@@ -98,10 +119,7 @@ const TwoQForm = () => {
 
         <form className="dass21-1">
           <div className="question-container">
-            <p>
-              1. ใน 2 สัปดาห์ที่ผ่านมารวมถึงวันนี้ "ท่านรู้สึกหดหู่ เศร้า
-              หรือท้อแท้สิ้นหวังหรือไม่"
-            </p>
+            <p>1. ไม่สบาย เซ็ง ทุกข์ใจ เศร้า ท้อแท้ ซึม หงอย</p>
             <div className="radio-group">
               <label>
                 <input
@@ -128,8 +146,8 @@ const TwoQForm = () => {
 
           <div className="question-container">
             <p>
-              2. ใน 2 สัปดาห์ที่ผ่านมารวมวันนี้ "ท่านรู้สึกเบื่อ
-              ทำอะไรก็ไม่เพลิดเพลินหรือไม่"
+              2. เบื่อ ไม่อยากพูดไม่อยากทำอะไร
+              หรือทำอะไรก็ไม่สนุกเพลิดเพลินเหมือนเดิม
             </p>
             <div className="radio-group">
               <label>
@@ -154,6 +172,38 @@ const TwoQForm = () => {
               </label>
             </div>
           </div>
+
+          {/* --- แสดง 2Q plus เฉพาะเมื่อ q1 หรือ q2 เป็น "มี" อย่างน้อย 1 ข้อ --- */}
+          {(answers.q1 || answers.q2) && (
+            <div className="question-container">
+              <p>
+                ใน 1 เดือนที่ผ่านมา รวมถึงวันนี้
+                ท่านมีความรู้สึกทุกข์ใจจนไม่อยากมีชีวิตอยู่หรือไม่
+              </p>
+              <div className="radio-group">
+                <label>
+                  <input
+                    type="radio"
+                    name="qplus"
+                    value="true"
+                    checked={answers.qplus === true}
+                    onChange={(e) => handleRadioChange("qplus", e.target.value)}
+                  />
+                  <span>มี</span>
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="qplus"
+                    value="false"
+                    checked={answers.qplus === false}
+                    onChange={(e) => handleRadioChange("qplus", e.target.value)}
+                  />
+                  <span>ไม่มี</span>
+                </label>
+              </div>
+            </div>
+          )}
         </form>
 
         <div className="p1_dass21-footer">
