@@ -42,6 +42,9 @@ import EightQForm from "./pages/qform/8q";
 import TwoQResult from "./pages/qform/2q_result";
 import QResult from "./pages/qform/q_result";
 
+import ST5Form from "./pages/st-5/st5_1";
+import ST5Result from "./pages/st-5/st5_result";
+
 function App() {
   return (
     <ProfileProvider>
@@ -86,6 +89,9 @@ function App() {
           <Route path="/2q-9q/1" element={<NineQForm />} />
           <Route path="/2q-9q-8q/1" element={<EightQForm />} />
           <Route path="/2q-9q-8q/result" element={<QResult />} />
+
+          <Route path="/st-5/1" element={<ST5Form />} />
+          <Route path="/st-5/result" element={<ST5Result />} />
         </Routes>
 
         <footer className="cookieConsent">
