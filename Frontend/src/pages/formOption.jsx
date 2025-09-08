@@ -111,6 +111,15 @@ export default function FormOption() {
           </div>
           <img className="ent-icon" src={Enter}></img>
         </div>
+        <div className="YMM f-container" onClick={() => navigateStep2("ST-5")}>
+          <img className="ex-icon" src={EXicon}></img>
+          <div className="form-name">
+            <b>ST-5</b>
+            <br />
+            <small>แบบประเมินความเครียด </small>
+          </div>
+          <img className="ent-icon" src={Enter}></img>
+        </div>
       </div>
     </div>
   );
