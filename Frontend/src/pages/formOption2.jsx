@@ -29,6 +29,8 @@ const getNextPage = (formType) => {
       return "/burnout/1";
     case "RQ":
       return "/rq/1";
+    case "ST-5":
+      return "/st-5/1";
     default:
       return "/dass-21/1";
   }
