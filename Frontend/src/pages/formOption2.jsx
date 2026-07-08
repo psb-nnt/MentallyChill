@@ -38,7 +38,7 @@ const getNextPage = (formType) => {
 
 export default function FormOption2() {
   const [step2Data, setStep2Data] = useState({
-    gender: "", age: "", year: "",
+    uid: "", gender: "", age: "", year: "",
     email: "", tel: "", sos_tel: "", form_type: "",
   });
 
@@ -82,21 +82,37 @@ export default function FormOption2() {
   }, [userType, selectedFaculty, selectedCourse, selectedYear, selectedPosition, outsiderLevel, outsiderSubLevel, otherPosition]);
 
   useEffect(() => {
-    liff.init({ liffId: import.meta.env.VITE_LIFF_ID })
-      .then(() => {
-        if (liff.isLoggedIn()) {
-          const token = liff.getAccessToken();
-          setAccessToken(token);
-          console.log("Login Success")
-        } else {
-          liff.login();
-        }
-      })
-      .catch((err) => {
-        console.error("Error initializing LIFF:", err);
-        setFormErrors((prev) => ({ ...prev, api: "ไม่สามารถเชื่อมต่อ LIFF ได้" }));
-      });
-  }, []); 
+  liff.init({ liffId: import.meta.env.VITE_LIFF_ID })
+    .then(() => {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const token = liff.getAccessToken();
+      setAccessToken(token);
+
+      const cachedUid = localStorage.getItem("uid");
+      if (cachedUid) {
+        setStep2Data((prev) => ({ ...prev, uid: cachedUid }));
+        return;
+      }
+
+      liff.getProfile()
+        .then((profile) => {
+          setStep2Data((prev) => ({ ...prev, uid: profile.userId }));
+          localStorage.setItem("uid", profile.userId);
+        })
+        .catch((err) => {
+          console.error("Error getting profile:", err);
+          setFormErrors((prev) => ({ ...prev, uid: "ไม่สามารถรับข้อมูลโปรไฟล์ได้" }));
+        });
+    })
+    .catch((err) => {
+      console.error("Error initializing LIFF:", err);
+      setFormErrors((prev) => ({ ...prev, api: "ไม่สามารถเชื่อมต่อ LIFF ได้" }));
+    });
+  }, []);
 
   const onChange = (evt) => {
     const { name, value } = evt.target;
@@ -124,7 +140,7 @@ export default function FormOption2() {
 
   const validateForm = () => {
     const errors = {};
-    
+    if (!step2Data.uid?.trim())   errors.uid      = "ไม่พบข้อมูล UID";
     if (!step2Data.gender)        errors.gender   = "กรุณาเลือกเพศ";
     if (!step2Data.age)           errors.age      = "กรุณาเลือกช่วงอายุ";
     if (!userType)                errors.userType = "กรุณาเลือกประเภทผู้ใช้งาน";
@@ -165,7 +181,7 @@ export default function FormOption2() {
   const onSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm();
-    /* console.log(step2Data) */
+    console.log(step2Data.uid)
     if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
 
     setLoading(true);

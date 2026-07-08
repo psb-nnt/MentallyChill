@@ -6,7 +6,7 @@ import liff from "@line/liff";
 export default function Remark() {
   useEffect(() => {
     liff
-      .init({ liffId: "2006283577-y6727Dan" })
+      .init({ liffId: import.meta.env.VITE_REMARK_ID })
       .then(() => {
         if (liff.isLoggedIn()) {
           console.log("logged in");

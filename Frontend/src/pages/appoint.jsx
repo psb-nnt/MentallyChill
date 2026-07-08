@@ -59,7 +59,7 @@ export default function Appoint() {
 
   useEffect(() => {
     liff
-      .init({ liffId: "2006283577-J1qnq04Q" })
+      .init({ liffId: import.meta.env.VITE_APPOINT_ID })
       .then(() => {
         if (liff.isLoggedIn()) {
           liff
