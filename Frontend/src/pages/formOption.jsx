@@ -19,26 +19,16 @@ export default function FormOption() {
   };
 
   useEffect(() => {
-    liff
-      .init({ liffId: "2006283577-Pq2z2JeQ" })
+    liff.init({ liffId: import.meta.env.VITE_LIFF_ID })
       .then(() => {
-        if (liff.isLoggedIn()) {
-          liff
-            .getProfile()
-            .then((profile) => {
-              localStorage.setItem("uid", profile.userId);
-            })
-            .catch((err) => {
-              console.error("Error getting profile:", err);
-            });
-        } else {
+        if (!liff.isLoggedIn()) {
           liff.login();
         }
       })
       .catch((err) => {
         console.error("Error initializing LIFF:", err);
       });
-  }, []);
+  }, []); 
 
   if (loading) {
     return <Loading />;
