@@ -51,6 +51,7 @@ export default function FormOption2() {
   const [outsiderLevel, setOutsiderLevel] = useState("");
   const [outsiderSubLevel, setOutsiderSubLevel] = useState("");
   const [otherPosition, setOtherPosition] = useState(""); // สำหรับ "อื่น ๆ ระบุ"
+  const [accessToken, setAccessToken] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
