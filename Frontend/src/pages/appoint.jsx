@@ -109,6 +109,7 @@ export default function Appoint() {
   }, [appointData.date, appointData.medDoctor]);
 
   const onSubmit = (e) => {
+    console.log(appointData.uid);
     e.preventDefault();
     const requiredFields = [
       "contactMethod",
@@ -237,9 +238,9 @@ export default function Appoint() {
       </div>
       <div className="appoint-form">
         <form onSubmit={onSubmit}>
-          <div className="userid">
+          {/* <div className="userid">
             UID: <small>{appointData.uid}</small>
-          </div>
+          </div> */}
           <div className="app-contact">
             <label>
               ช่องทางการติดต่อ<mark> *</mark>
