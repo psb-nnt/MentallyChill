@@ -124,7 +124,7 @@ export default function FormOption2() {
 
   const validateForm = () => {
     const errors = {};
-    if (!step2Data.uid?.trim())   errors.uid      = "ไม่พบข้อมูล UID";
+    
     if (!step2Data.gender)        errors.gender   = "กรุณาเลือกเพศ";
     if (!step2Data.age)           errors.age      = "กรุณาเลือกช่วงอายุ";
     if (!userType)                errors.userType = "กรุณาเลือกประเภทผู้ใช้งาน";

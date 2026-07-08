@@ -9,8 +9,7 @@ const LineLiff = () => {
   useEffect(() => {
     const initializeLiff = async () => {
       try {
-        await liff.init({ liffId: "2005311386-6GQLXp7Z" });
-
+        await liff.init({ liffId: import.meta.env.VITE_LIFF_ID })
         if (!liff.isLoggedIn()) {
           liff.login();
         } else {
