@@ -1,49 +1,52 @@
 import pool from "../Config/db.js";
 import json2csv from "json2csv";
-
-// const exportcsvformResuit = async (res) => {
-//     try{
-//         const formResults = await pool.query(
-//             `SELECT * FROM forms_result ORDER BY created DESC`
-//         );
-//         const fields = ['result_id', 'user_id', 'forms_type', 'result', 'created'];
-//         const csv = json2csv.parse(formResults.rows, { fields });
-//         res.setHeader('Content-disposition', 'attachment; filename=formResult.csv');
-//         res.set('Content-Type', 'text/csv');
-//         res.status(200).send(csv);
-//     }
-//     catch(err){
-//         console.error('Error exporting form result data:', err);
-//         res.sendStatus(500);
-//     }
-// }
+import { evaluateScore } from "../Helpers/scoreEvaluator.js";
 
 const exportcsvformResuit = async (res) => {
   try {
-    const formResults = await pool.query(
-      `SELECT * FROM forms_result ORDER BY created DESC`,
-    );
+    // JOIN ตาราง forms_result กับ users (สมมติว่าตาราง users ใช้ id เป็น Primary Key)
+    const query = `
+            SELECT
+                r.result_id,
+                r.user_id,
+                r.forms_type,
+                r.result AS form_data,
+                r.created,
+                u.gender,
+                u.age,
+                u.email,
+                u.phone,
+                u.phone_emergency,
+                u.grade_level
+            FROM forms_result r
+            LEFT JOIN users u ON r.user_id = u.id
+            ORDER BY r.created DESC
+        `;
+    const formResults = await pool.query(query);
 
     const transformedData = [];
 
     formResults.rows.forEach((row) => {
-      // 1. แปลงข้อมูล
       const resultData =
-        typeof row.result === "string"
-          ? JSON.parse(row.result)
-          : row.result || {};
-      const uid = resultData.uid || "";
+        typeof row.form_data === "string"
+          ? JSON.parse(row.form_data)
+          : row.form_data || {};
 
-      // ข้อมูลพื้นฐานที่ต้องมีทุกแถว
+      // ข้อมูล User พื้นฐานที่จะต้องมีทุกบรรทัด (เอา uid ออกไปแล้ว)
       const baseData = {
         result_id: row.result_id,
         user_id: row.user_id,
+        gender: row.gender,
+        age: row.age,
+        email: row.email,
+        phone: row.phone,
+        phone_emergency: row.phone_emergency,
+        grade_level: row.grade_level,
         forms_type: row.forms_type,
         created: row.created,
-        uid: uid,
       };
 
-      // 2. ดึงคะแนนออกมาแบบอัตโนมัติ (Dynamic Extraction)
+      // ดึงคะแนน (Dynamic Parsing แบบเดิม)
       let extractedScores = {};
 
       if (resultData.scores !== undefined) {
@@ -51,16 +54,12 @@ const exportcsvformResuit = async (res) => {
           typeof resultData.scores === "object" &&
           resultData.scores !== null
         ) {
-          // กรณี: burnout (scores เป็นก้อน Object เช่น {"emotionalScore":38,...})
           extractedScores = resultData.scores;
         } else {
-          // กรณี: stress, st-5 (scores เป็นค่าตัวเลขเดียว)
           extractedScores = { total: resultData.scores };
         }
       } else {
-        // กรณี: dass21 (คะแนนอยู่ระดับนอกสุด เช่น "d":17, "a":8, "s":21)
         for (const key in resultData) {
-          // ข้ามคีย์ที่ไม่ใช่คะแนน เช่น uid หรือ answers (ข้อมูลดิบ)
           if (
             key !== "uid" &&
             key !== "answers" &&
@@ -71,26 +70,41 @@ const exportcsvformResuit = async (res) => {
         }
       }
 
-      // 3. นำคะแนนที่สกัดได้ มาแตกเป็นแถวๆ
+      // นำคะแนนมาแตกแถว พร้อมกับนำคะแนนไป "ประเมินผล"
       for (const [topic, score] of Object.entries(extractedScores)) {
+        // โยนตัวเลขไปเข้าฟังก์ชันประเมินด้านบน เพื่อเอาคำแปลผลกลับมา
+        const evaluationResultText = evaluateScore(
+          row.forms_type,
+          topic,
+          score,
+        );
+
         transformedData.push({
           ...baseData,
           topic: topic,
           score: score,
+          evaluation_result: evaluationResultText, // เพิ่มคอลัมน์ผลประเมิน
         });
       }
     });
 
-    // 4. สร้าง CSV
+    // กำหนดหัวคอลัมน์ของ CSV ใหม่ให้ครอบคลุมข้อมูล User และ ผลการประเมิน
     const fields = [
       "result_id",
       "user_id",
-      "uid",
+      "gender",
+      "age",
+      "email",
+      "phone",
+      "phone_emergency",
+      "grade_level",
       "forms_type",
       "topic",
       "score",
+      "evaluation_result",
       "created",
     ];
+
     const csv = json2csv.parse(transformedData, { fields });
 
     res.setHeader("Content-disposition", "attachment; filename=formResult.csv");
