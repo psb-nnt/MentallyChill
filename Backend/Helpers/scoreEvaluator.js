@@ -89,8 +89,8 @@ export const evaluateScore = (formType, topic, score) => {
     if (topic === "depersonalizationScore") {
       if (!validateScore(score)) return "คะแนนไม่ถูกต้อง";
 
-      if (score >= 13) return "ระดับรุนแรงที่สุด";
-      if (score >= 7) return "ระดับรุนแรง";
+      if (score >= 13) return "ระดับสูง";
+      if (score >= 7) return "ระดับปานกลาง";
 
       return "ระดับต่ำ";
     }
