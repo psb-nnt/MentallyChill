@@ -76,6 +76,7 @@ export default function StressFormP2() {
       const totalScore = calculateFinalScore();
       const payload = {
         uid,
+        answers: selectedValues,
         scores: totalScore,
       };
       console.log(payload);

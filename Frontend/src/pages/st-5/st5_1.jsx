@@ -64,6 +64,7 @@ export default function ST5Form() {
 
     const payload = {
       uid,
+      answers: selectedValues,
       scores: totalScore,
     };
     console.log(payload);

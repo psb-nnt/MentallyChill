@@ -70,6 +70,20 @@ const exportcsvformResuit = async (res) => {
         }
       }
 
+      // Legacy fallback for RQ: calculate rqTotal if missing in older submissions
+      if (row.forms_type === "rq" && extractedScores.rqTotal === undefined) {
+        const emotionalEndurance = Number(extractedScores.emotionalEndurance);
+        const encouragement = Number(extractedScores.encouragement);
+        const problemManagement = Number(extractedScores.problemManagement);
+        if (
+          !isNaN(emotionalEndurance) &&
+          !isNaN(encouragement) &&
+          !isNaN(problemManagement)
+        ) {
+          extractedScores.rqTotal = emotionalEndurance + encouragement + problemManagement;
+        }
+      }
+
       // นำคะแนนมาแตกแถว พร้อมกับนำคะแนนไป "ประเมินผล"
       for (const [topic, score] of Object.entries(extractedScores)) {
         // โยนตัวเลขไปเข้าฟังก์ชันประเมินด้านบน เพื่อเอาคำแปลผลกลับมา

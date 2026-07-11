@@ -1,11 +1,50 @@
 import e from "express";
 import pool from "../Config/db.js";
 import lineRouter from "../Routes/lineRoutes.js";
+import { calculateFormScores } from "../Helpers/scoreCalculator.js";
+
+const processResultPayload = (forms_type, result) => {
+  try {
+    let resultObj = typeof result === "string" ? JSON.parse(result) : result;
+    if (!resultObj) return result;
+
+    let answers = resultObj.answers;
+
+    // Fallback: extract any keys from the root object that are not standard metadata/score keys
+    if (!answers) {
+      answers = {};
+      const excludedKeys = new Set([
+        "uid", "scores", "d", "a", "s", "emotionalScore", "depersonalizationScore",
+        "personalAchievementScore", "emotionalEndurance", "encouragement",
+        "problemManagement", "rqTotal"
+      ]);
+      for (const key in resultObj) {
+        if (!excludedKeys.has(key) && typeof resultObj[key] !== "object") {
+          answers[key] = resultObj[key];
+        }
+      }
+    }
+
+    const calculatedScores = calculateFormScores(forms_type, answers);
+
+    // Merge calculated scores into payload
+    resultObj = {
+      ...resultObj,
+      ...calculatedScores
+    };
+
+    return JSON.stringify(resultObj);
+  } catch (error) {
+    console.error("Error processing result payload in backend:", error);
+    return result;
+  }
+};
 
 const newFormResult = async (uid, form_id, result) => {
+    const processedResult = processResultPayload(form_id, result);
     const newFormResult = await pool.query(
         `INSERT INTO forms_result (user_id, forms_type, result) VALUES($1, $2, $3) RETURNING *`,
-        [uid, form_id, result]
+        [uid, form_id, processedResult]
     );
     return (newFormResult["rows"][0]);
 }
@@ -43,9 +82,10 @@ const allFormResults = async () => {
 
 // ONLY FOR SUBMISSION USING LINE_UID [FRONTEND ONLY]
 const submitForms = async (uid, forms_type, result) => {
+    const processedResult = processResultPayload(forms_type, result);
     const newFormResult = await pool.query(
         `INSERT INTO forms_result (user_id, forms_type, result) VALUES ((SELECT user_id FROM users WHERE line_uid = $1), $2, $3) RETURNING *`,
-        [uid, forms_type, result]
+        [uid, forms_type, processedResult]
     );
 
     return (newFormResult["rows"][0]);

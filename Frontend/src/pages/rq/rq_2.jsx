@@ -65,10 +65,15 @@ export default function RQFormP2() {
       }, 0);
     };
 
+    const emotionalEndurance = calculateScore(emotionalEnduranceQuestions);
+    const encouragement = calculateScore(encouragementQuestions);
+    const problemManagement = calculateScore(problemManagementQuestions);
+
     return {
-      emotionalEndurance: calculateScore(emotionalEnduranceQuestions),
-      encouragement: calculateScore(encouragementQuestions),
-      problemManagement: calculateScore(problemManagementQuestions),
+      emotionalEndurance,
+      encouragement,
+      problemManagement,
+      rqTotal: emotionalEndurance + encouragement + problemManagement,
     };
   };
 

@@ -95,6 +95,7 @@ export default function P3_dass21() {
       const scores = calculateScores();
       const payload = {
         uid,
+        answers: selectedValues,
         ...scores,
       };
       axios
