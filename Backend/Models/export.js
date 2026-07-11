@@ -19,7 +19,7 @@ const exportcsvformResuit = async (res) => {
                 u.phone_emergency,
                 u.grade_level
             FROM forms_result r
-            LEFT JOIN users u ON r.user_id = u.id
+            LEFT JOIN users u ON r.user_id = u.user_id
             ORDER BY r.created DESC
         `;
     const formResults = await pool.query(query);
