@@ -12,7 +12,6 @@ import { useLocation } from "react-router-dom";
 export default function DiagnosisPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFormType, setSelectedFormType] = useState("");
-  const [selectedResult, setSelectedResult] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [data, setData] = useState([]);
   const [formTypeData, setFormTypeData] = useState([]);
@@ -204,9 +203,6 @@ export default function DiagnosisPage() {
 
     return (
       (selectedFormType ? item.forms_type === selectedFormType : true) &&
-      (selectedResult
-        ? item.forms_type === "dass21" && resultCategory === selectedResult
-        : true) &&
       (searchTerm ? item.user_id.toLowerCase() === searchTerm.trim().toLowerCase() : true) &&
       monthMatch &&
       dateMatch
@@ -234,11 +230,6 @@ export default function DiagnosisPage() {
     setCurrentPage(1);
   };
 
-  const handleSelectResult = (option) => {
-    setSelectedResult(option);
-    setCurrentPage(1);
-  };
-
   const handleSelectMonth = (option) => {
     setSelectedMonth(option);
     setCurrentPage(1);
@@ -246,7 +237,6 @@ export default function DiagnosisPage() {
 
   const clearAllFilters = () => {
     setSelectedFormType("");
-    setSelectedResult("");
     setSelectedMonth("");
     setDateRange(null);
     setCurrentPage(1);
@@ -282,12 +272,7 @@ export default function DiagnosisPage() {
               onSelect={handleSelectLocation}
               selected={selectedFormType}
             />
-            <Dropdown
-              placehold={"ผลการประเมิน"}
-              options={["ร้ายแรง", "ปานกลาง", "ปกติ"]}
-              onSelect={handleSelectResult}
-              selected={selectedResult}
-            />
+
             {/* <Dropdown
               placehold={"เดือน"}
               options={monthOptions}
