@@ -104,6 +104,7 @@ export default function BookingHistoryPage() {
   const [status, setStatus] = useState("Pending");
   const { bookingId } = useParams();
   const [alldata, setAlldata] = useState([]);
+  const [isInitialLoaded, setIsInitialLoaded] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,6 +114,24 @@ export default function BookingHistoryPage() {
         console.log(data, "data");
         console.log(data, "uid");
         setAlldata(data);
+
+        // Load draft or pre-populate from details
+        const savedDraft = localStorage.getItem(`booking_draft_${bookingId}`);
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            setNote(parsed.note || "");
+            setCon(parsed.con || "");
+            setFeed(parsed.feed || "");
+          } catch (e) {
+            console.error("Error parsing saved draft:", e);
+          }
+        } else {
+          setNote(data.details || "");
+          setCon("");
+          setFeed("");
+        }
+        setIsInitialLoaded(true);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -120,6 +139,15 @@ export default function BookingHistoryPage() {
 
     fetchData();
   }, [bookingId]);
+
+  useEffect(() => {
+    if (isInitialLoaded) {
+      localStorage.setItem(
+        `booking_draft_${bookingId}`,
+        JSON.stringify({ note, con, feed })
+      );
+    }
+  }, [note, con, feed, bookingId, isInitialLoaded]);
 
   useEffect(() => {
     if (status !== "Pending") {
@@ -133,6 +161,9 @@ export default function BookingHistoryPage() {
             post_conclusion: con,
           });
           console.log("Response:", response.data);
+          if (status === "complete") {
+            localStorage.removeItem(`booking_draft_${bookingId}`);
+          }
           navigate("/bookinginfo");
         } catch (error) {
           console.error("Error:", error);
@@ -141,7 +172,7 @@ export default function BookingHistoryPage() {
 
       postData();
     }
-  }, [status, bookingId, navigate]);
+  }, [status, bookingId, navigate, note, feed, con]);
 
   const handleClick = (stat) => {
     switch (stat) {
