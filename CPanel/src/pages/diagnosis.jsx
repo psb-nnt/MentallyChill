@@ -4,7 +4,10 @@ import Dropdown from "../components/dropdown";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import ExportButton from "../components/exportbutton";
+import { DatePicker } from 'antd';
+const { RangePicker } = DatePicker;
 import { useLocation } from "react-router-dom";
+
 
 export default function DiagnosisPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,6 +20,7 @@ export default function DiagnosisPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [dateRange, setDateRange] = useState(null);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const userIdFromQuery = queryParams.get("user_id");
@@ -185,15 +189,30 @@ export default function DiagnosisPage() {
         itemYear === selectedYear && itemMonth === selectedMonthIndex;
     }
 
+    let dateMatch = true;
+    if (dateRange && dateRange[0]) {
+      const itemDate = new Date(item.created);
+      const startDate = dateRange[0].startOf('day').toDate();
+      if (dateRange[1]) {
+        const endDate = dateRange[1].endOf('day').toDate();
+        dateMatch = itemDate >= startDate && itemDate <= endDate;
+      } else {
+        // No end date means "Till Now" (everything from startDate onwards)
+        dateMatch = itemDate >= startDate;
+      }
+    }
+
     return (
       (selectedFormType ? item.forms_type === selectedFormType : true) &&
       (selectedResult
         ? item.forms_type === "dass21" && resultCategory === selectedResult
         : true) &&
-      (searchTerm ? item.user_id.includes(searchTerm.toLowerCase()) : true) &&
-      monthMatch
+      (searchTerm ? item.user_id.toLowerCase() === searchTerm.trim().toLowerCase() : true) &&
+      monthMatch &&
+      dateMatch
     );
   });
+
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
@@ -229,6 +248,7 @@ export default function DiagnosisPage() {
     setSelectedFormType("");
     setSelectedResult("");
     setSelectedMonth("");
+    setDateRange(null);
     setCurrentPage(1);
   };
 
@@ -268,11 +288,21 @@ export default function DiagnosisPage() {
               onSelect={handleSelectResult}
               selected={selectedResult}
             />
-            <Dropdown
+            {/* <Dropdown
               placehold={"เดือน"}
               options={monthOptions}
               onSelect={handleSelectMonth}
               selected={selectedMonth}
+            />*/}
+            <RangePicker
+              placeholder={['วันที่เริ่ม', 'จนถึงวันนี้']}
+              allowEmpty={[false, true]}
+              value={dateRange}
+              size={"large"}
+              onChange={(dates) => {
+                setDateRange(dates);
+                setCurrentPage(1);
+              }}
             />
             <button
               className="py-2 px-4 bg-red-500 text-white rounded w-full md:w-auto"
@@ -287,7 +317,7 @@ export default function DiagnosisPage() {
             onChange={handleSearchTermChange}
             value={searchTerm}
             ref={searchInputRef}
-            className="py-2 px-4 rounded border w-full md:w-auto"
+            className="py-2 px-4 rounded border w-full md:w-auto md:ml-auto"
           />
         </div>
         <div className="overflow-x-auto">
