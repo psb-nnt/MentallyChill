@@ -7,7 +7,7 @@ const exportRouter = express.Router();
 
 exportRouter.get ("/exportformResult", async (req, res) => {
     try {
-        await exportcsvformResuit(res);
+        await exportcsvformResuit(req, res);
     } catch (err) {
         logger.error(err);
         res.sendStatus(500);

@@ -82,7 +82,17 @@ export default function DiagnosisPage() {
 
   const exporttocsv = async () => {
     try {
-      const response = await axios.get("/export/exportformResult", {
+      const params = new URLSearchParams();
+      if (selectedFormType) params.append("forms_type", selectedFormType);
+      if (searchTerm) params.append("user_id", searchTerm);
+      if (dateRange && dateRange[0]) {
+        params.append("startDate", dateRange[0].toISOString());
+      }
+      if (dateRange && dateRange[1]) {
+        params.append("endDate", dateRange[1].toISOString());
+      }
+
+      const response = await axios.get(`/export/exportformResult?${params.toString()}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

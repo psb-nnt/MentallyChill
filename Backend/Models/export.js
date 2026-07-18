@@ -2,10 +2,11 @@ import pool from "../Config/db.js";
 import json2csv from "json2csv";
 import { evaluateScore } from "../Helpers/scoreEvaluator.js";
 
-const exportcsvformResuit = async (res) => {
+const exportcsvformResuit = async (req, res) => {
   try {
-    // JOIN ตาราง forms_result กับ users (สมมติว่าตาราง users ใช้ id เป็น Primary Key)
-    const query = `
+    const { forms_type, user_id, startDate, endDate } = req.query;
+
+    let query = `
             SELECT
                 r.result_id,
                 r.user_id,
@@ -20,9 +21,38 @@ const exportcsvformResuit = async (res) => {
                 u.grade_level
             FROM forms_result r
             LEFT JOIN users u ON r.user_id = u.user_id
-            ORDER BY r.created DESC
-        `;
-    const formResults = await pool.query(query);
+    `;
+
+    const whereClauses = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (forms_type) {
+      whereClauses.push(`r.forms_type = $${paramIndex++}`);
+      values.push(forms_type);
+    }
+    if (user_id) {
+      whereClauses.push(`LOWER(r.user_id) = LOWER($${paramIndex++})`);
+      values.push(user_id.trim());
+    }
+    if (startDate) {
+      whereClauses.push(`r.created >= $${paramIndex++}`);
+      values.push(new Date(startDate));
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      whereClauses.push(`r.created <= $${paramIndex++}`);
+      values.push(end);
+    }
+
+    if (whereClauses.length > 0) {
+      query += ` WHERE ` + whereClauses.join(` AND `);
+    }
+
+    query += ` ORDER BY r.created DESC`;
+
+    const formResults = await pool.query(query, values);
 
     const transformedData = [];
 
