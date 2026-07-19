@@ -7,7 +7,7 @@ import Topbar from "../components/topbar";
 
 export default function EditStaffPage() {
   const { staffId } = useParams();
-  const { invalidateStaffList } = useContext(DataContext);
+  const { invalidateStaffList, invalidateLogList } = useContext(DataContext);
   const [staffData, setStaffData] = useState({
     staff_id: staffId,
     name: "",
