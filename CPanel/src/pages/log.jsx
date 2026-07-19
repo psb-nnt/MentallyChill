@@ -3,14 +3,17 @@ import { useEffect, useState, useRef, useContext } from "react";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { DataContext } from "../context/DataContext";
 
 export default function LogPage() {
+  const { getLogList } = useContext(DataContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [permission, setPermission] = useState('');
+  const { permission } = useContext(AuthContext);
   const [sortOrder, setSortOrder] = useState("newest");
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -20,38 +23,25 @@ export default function LogPage() {
   const searchInputRef = useRef(null);
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/log/all`);
-        setData(response.data);
+        const logData = await getLogList();
+        setData(logData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchData();
- }, []);
+    if (permission === 'administrator') {
+      fetchData();
+    }
+  }, [permission]);
 
  useEffect(() => {
-    const fetchPermission = async () => {
-        try {
-            const response = await axios.get('/auth/permission', { withCredentials: true });
-            setPermission(response.data.permission);
-            if (response.data.permission !== 'administrator') {
-                navigate('/dashboard');
-            } else {
-                console.log(response.data.permission);
-                navigate('/log');
-            }
-        } catch (error) {
-            console.error('Error fetching permission', error);
-
-        }
-    };
-
-    fetchPermission();
-}, []);
+    if (permission && permission !== 'administrator') {
+      navigate('/dashboard');
+    }
+  }, [permission, navigate]);
 
   useEffect(() => {
     if (searchInputRef.current) {

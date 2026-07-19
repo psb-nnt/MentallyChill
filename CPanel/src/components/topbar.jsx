@@ -1,9 +1,11 @@
 import axios from "./axioscreds";
 import { useEffect, useState, useContext } from "react";
+import { DataContext } from "../context/DataContext";
 
 export default function Topbar() {
 
   const [staffdata, setStaffdata] = useState(null); // Initialize with null to check for data later
+  const { clearAllCache } = useContext(DataContext);
 
 
 
@@ -25,6 +27,7 @@ export default function Topbar() {
   const onLogout = () => {
     axios.post("/auth/logout")
       .then(() => {
+        clearAllCache();
         window.location.href = "/";
       })
       .catch(error => {

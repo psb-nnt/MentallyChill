@@ -98,6 +98,7 @@ export default function EditStaffPage() {
             }
         });
         invalidateStaffList();
+        invalidateLogList();
         alert("Staff data updated successfully!");
         navigate('/stafflist');
     } catch (error) {

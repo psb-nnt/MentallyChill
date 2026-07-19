@@ -8,6 +8,7 @@ import { DataContext } from "../context/DataContext";
 
 export default function StaffListPage() {
   const { getStaffList } = useContext(DataContext);
+  const { permission } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -17,8 +18,6 @@ export default function StaffListPage() {
   const queryParams = new URLSearchParams(location.search);
   const staffIdFromQuery = queryParams.get('staff_id');
   const navigate = useNavigate();
-
-  const [permission, setPermission] = useState('');
 
   const searchInputRef = useRef(null);
 
@@ -33,20 +32,8 @@ export default function StaffListPage() {
       }
     };
 
-    const fetchPermission = async () => {
-      try {
-        const response = await axios.get(`/auth/permission`);
-        setPermission(response.data.permission);
-        console.log(response.data.permission);
-      }
-       catch (error) {
-        console.error("Error fetching permission:", error);
-      }
-    };
-
     fetchData();
-    fetchPermission();
- }, []);
+  }, []);
 
   useEffect(() => {
     if (searchInputRef.current) {

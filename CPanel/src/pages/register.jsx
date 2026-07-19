@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { DataContext } from "../context/DataContext";
 
 export default function RegisterPage() {
-  const { invalidateStaffList } = useContext(DataContext);
+  const { invalidateStaffList, invalidateLogList } = useContext(DataContext);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -25,6 +25,7 @@ export default function RegisterPage() {
       setLoading(false);
       if (response.status === 200 || response.status === 201) {
         invalidateStaffList();
+        invalidateLogList();
         const successMessage = `ทำการเพิ่มบัญชีผู้ใช้สำเร็จ\nบัญชีผู้ใช้ : ${data.get(
           "staff_id"
         )}\nรหัสผ่าน: ${data.get("password")}`;

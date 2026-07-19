@@ -1,10 +1,12 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import { PieChart, pieArcLabelClasses, LineChart } from "@mui/x-charts";
+import { DataContext } from "../context/DataContext";
 
 export default function DashboardPage() {
+  const { getDiagnosisForms, getAppointments, getUserList } = useContext(DataContext);
   // Basic dashboard data
   const [bookingdata, setBookingData] = useState([]);
   const [diagdata, setDiagData] = useState([]);
@@ -151,52 +153,21 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    const fetchDiagData = async () => {
+    const loadDashboardData = async () => {
       try {
-        const response = await axios.get(`/forms/all`);
-        setDiagData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+        const [forms, appointments, users] = await Promise.all([
+          getDiagnosisForms(),
+          getAppointments(),
+          getUserList()
+        ]);
 
-    const fetchCountDiag = async () => {
-      try {
-        const response = await axios.get(`/forms/count`);
-        const data = response.data.count;
-        setCountDiag(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+        setDiagData(forms);
+        setCountDiag(forms.length);
 
-    const fetchBookingData = async () => {
-      try {
-        const response = await axios.get(`/appointment/all`);
-        setBookingData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    const fetchCountBooking = async () => {
-      try {
-        const response = await axios.get(`/appointment/count`);
-        const data = response.data.count;
-        setCountBooking(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`/user/all`);
-        const users = response.data;
+        setBookingData(appointments);
+        setCountBooking(appointments.length);
 
         setUserData(users);
-
-        // Set the user count
         setCountUsers(users.length);
 
         // Count college and high school students
@@ -212,19 +183,15 @@ export default function DashboardPage() {
         });
 
         setDemographics({ collegecount: college, highschoolcount: highschool });
-
+        
         // Process monthly data for line chart
         processMonthlyData(users);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error loading dashboard data:", error);
       }
     };
 
-    fetchCountDiag();
-    fetchCountBooking();
-    fetchDiagData();
-    fetchBookingData();
-    fetchUserData();
+    loadDashboardData();
   }, []);
 
   // Add new function to process monthly data

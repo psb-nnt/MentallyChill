@@ -8,6 +8,7 @@ export const DataProvider = ({ children }) => {
   const [diagnosisForms, setDiagnosisForms] = useState(null);
   const [staffList, setStaffList] = useState(null);
   const [userList, setUserList] = useState(null);
+  const [logList, setLogList] = useState(null);
 
   const getAppointments = async (force = false) => {
     if (!appointments || force) {
@@ -45,10 +46,28 @@ export const DataProvider = ({ children }) => {
     return userList;
   };
 
+  const getLogList = async (force = false) => {
+    if (!logList || force) {
+      const res = await axios.get('/log/all');
+      setLogList(res.data);
+      return res.data;
+    }
+    return logList;
+  };
+
   const invalidateAppointments = () => setAppointments(null);
   const invalidateDiagnosisForms = () => setDiagnosisForms(null);
   const invalidateStaffList = () => setStaffList(null);
   const invalidateUserList = () => setUserList(null);
+  const invalidateLogList = () => setLogList(null);
+
+  const clearAllCache = () => {
+    setAppointments(null);
+    setDiagnosisForms(null);
+    setStaffList(null);
+    setUserList(null);
+    setLogList(null);
+  };
 
   return (
     <DataContext.Provider value={{
@@ -56,10 +75,13 @@ export const DataProvider = ({ children }) => {
       getDiagnosisForms,
       getStaffList,
       getUserList,
+      getLogList,
       invalidateAppointments,
       invalidateDiagnosisForms,
       invalidateStaffList,
-      invalidateUserList
+      invalidateUserList,
+      invalidateLogList,
+      clearAllCache
     }}>
       {children}
     </DataContext.Provider>
