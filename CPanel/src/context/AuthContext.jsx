@@ -4,31 +4,30 @@ import axios from '../components/axioscreds';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [permission, setPermission] = useState('');
+  const [user, setUser] = useState(null);
 
-  const fetchPermission = async () => {
+  const fetchUser = async () => {
     try {
-      const response = await axios.get('/auth/permission');
-      setPermission(response.data.permission);
+      const response = await axios.get('/auth/check');
+      setUser(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setUser(null);
     }
   };
 
   useEffect(() => {
-    fetchPermission();
+    fetchUser();
   }, []);
 
-  const update = async (newPermission) => {
-    if (typeof newPermission === 'string' && newPermission) {
-      setPermission(newPermission);
-    } else {
-      await fetchPermission();
-    }
+  const update = async () => {
+    await fetchUser();
   };
+
+  const permission = user?.permission || '';
   
   return (
-    <AuthContext.Provider value={{ permission, update }}>
+    <AuthContext.Provider value={{ user, permission, update }}>
       {children}
     </AuthContext.Provider>
   );
