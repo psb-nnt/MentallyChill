@@ -1,10 +1,12 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import { useLocation, useNavigate } from "react-router-dom";
+import { DataContext } from "../context/DataContext";
 
 export default function UserListPage() {
+  const { getUserList } = useContext(DataContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -21,8 +23,8 @@ export default function UserListPage() {
 
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/user/all`);
-        setData(response.data);
+        const userData = await getUserList();
+        setData(userData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

@@ -1,6 +1,7 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import Dropdown from "../components/dropdown";
+import { DataContext } from "../context/DataContext";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import ExportButton from "../components/exportbutton";
@@ -10,6 +11,7 @@ import { useLocation } from "react-router-dom";
 
 
 export default function DiagnosisPage() {
+  const { getDiagnosisForms } = useContext(DataContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFormType, setSelectedFormType] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -31,8 +33,8 @@ export default function DiagnosisPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/forms/all`);
-        setData(response.data);
+        const formsData = await getDiagnosisForms();
+        setData(formsData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
+import { DataContext } from '../context/DataContext';
 import { IoChatboxEllipsesSharp } from 'react-icons/io5';
 import { MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank, MdOutlineIndeterminateCheckBox } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ import ExportButton from '../components/exportbutton';
 
 export default function BookingInfoPage() {
   const navigate = useNavigate();
+  const { getAppointments } = useContext(DataContext);
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTopic, setSelectedTopic] = useState('');
@@ -57,8 +59,8 @@ export default function BookingInfoPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/appointment/all`);
-        setData(response.data);
+        const appointmentsData = await getAppointments();
+        setData(appointmentsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }

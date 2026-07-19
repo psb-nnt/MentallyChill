@@ -1,6 +1,7 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DataContext } from "../context/DataContext";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 
@@ -98,6 +99,7 @@ const Content = ({
 
 export default function BookingHistoryPage() {
   const navigate = useNavigate();
+  const { invalidateAppointments } = useContext(DataContext);
   const [note, setNote] = useState("");
   const [con, setCon] = useState("");
   const [feed, setFeed] = useState("");
@@ -164,6 +166,7 @@ export default function BookingHistoryPage() {
           if (status === "complete") {
             localStorage.removeItem(`booking_draft_${bookingId}`);
           }
+          invalidateAppointments();
           navigate("/bookinginfo");
         } catch (error) {
           console.error("Error:", error);

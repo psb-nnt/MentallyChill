@@ -4,8 +4,10 @@ import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { DataContext } from "../context/DataContext";
 
 export default function StaffListPage() {
+  const { getStaffList } = useContext(DataContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [data, setData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -24,8 +26,8 @@ export default function StaffListPage() {
 
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/staff/all`);
-        setData(response.data);
+        const staffData = await getStaffList();
+        setData(staffData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

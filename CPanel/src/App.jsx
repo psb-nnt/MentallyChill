@@ -19,6 +19,7 @@ import ProtectedRoute from "./components/protectedroute";
 import EditProfilePage from "./pages/editprofile";
 
 import { AuthProvider } from "./context/AuthContext";
+import { DataProvider } from "./context/DataContext";
 
 function App() {
 
@@ -40,28 +41,30 @@ function App() {
   return (
     <>
     <AuthProvider>
-      <BrowserRouter>
-      
-        <Routes>
-          <Route path="/" element={isLoggedIn ? <DashboardPage /> : <SignInPage />} />
-          <Route path="/signin" element={<SignInPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute element={DashboardPage} />} />
-          <Route path="/diagnosis" element={<ProtectedRoute element={DiagnosisPage} />} />
-          <Route path="/bookinginfo" element={<ProtectedRoute element={BookingInfoPage} />} />
-          <Route path="/bookingdetails/:bookingId" element={<ProtectedRoute element={BookingDetailsPage} />} />
-          <Route path="/bookinghistory/:bookingId" element={<ProtectedRoute element={BookingHistoryPage} />} />
-          <Route path="/bookinghistorydone/:bookingId" element={<ProtectedRoute element={BookingHistoryDonePage} />} />
-          <Route path="/assigndate" element={<ProtectedRoute element={AssignDatePage} />} />
-          <Route path="/register" element={<ProtectedRoute element={RegisterPage} />} />
-          <Route path="/editprofile" element={<ProtectedRoute element={EditProfilePage} />} />
-          <Route path="/editstaff/:staffId" element={<ProtectedRoute element={EditStaffPage} />} />
-          <Route path="/stafflist" element={<ProtectedRoute element={StaffListPage} />} />
-          <Route path="/userlist" element={<ProtectedRoute element={UserListPage} />} />
-          <Route path="/log" element={<ProtectedRoute element={LogPage} />} />
-        </Routes>
+      <DataProvider>
+        <BrowserRouter>
         
-      </BrowserRouter>
-      </AuthProvider>
+          <Routes>
+            <Route path="/" element={isLoggedIn ? <DashboardPage /> : <SignInPage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={DashboardPage} />} />
+            <Route path="/diagnosis" element={<ProtectedRoute element={DiagnosisPage} />} />
+            <Route path="/bookinginfo" element={<ProtectedRoute element={BookingInfoPage} />} />
+            <Route path="/bookingdetails/:bookingId" element={<ProtectedRoute element={BookingDetailsPage} />} />
+            <Route path="/bookinghistory/:bookingId" element={<ProtectedRoute element={BookingHistoryPage} />} />
+            <Route path="/bookinghistorydone/:bookingId" element={<ProtectedRoute element={BookingHistoryDonePage} />} />
+            <Route path="/assigndate" element={<ProtectedRoute element={AssignDatePage} />} />
+            <Route path="/register" element={<ProtectedRoute element={RegisterPage} />} />
+            <Route path="/editprofile" element={<ProtectedRoute element={EditProfilePage} />} />
+            <Route path="/editstaff/:staffId" element={<ProtectedRoute element={EditStaffPage} />} />
+            <Route path="/stafflist" element={<ProtectedRoute element={StaffListPage} />} />
+            <Route path="/userlist" element={<ProtectedRoute element={UserListPage} />} />
+            <Route path="/log" element={<ProtectedRoute element={LogPage} />} />
+          </Routes>
+          
+        </BrowserRouter>
+      </DataProvider>
+    </AuthProvider>
     </>
   );
 }

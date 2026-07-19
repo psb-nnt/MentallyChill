@@ -1,11 +1,13 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { DataContext } from "../context/DataContext";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 
 export default function EditStaffPage() {
   const { staffId } = useParams();
+  const { invalidateStaffList } = useContext(DataContext);
   const [staffData, setStaffData] = useState({
     staff_id: staffId,
     name: "",
@@ -95,6 +97,7 @@ export default function EditStaffPage() {
                 'Content-Type': 'multipart/form-data'
             }
         });
+        invalidateStaffList();
         alert("Staff data updated successfully!");
         navigate('/stafflist');
     } catch (error) {

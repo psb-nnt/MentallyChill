@@ -1,6 +1,7 @@
 import axios from "../components/axioscreds";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DataContext } from "../context/DataContext";
 import Sidebar from "../components/sidebar";
 import Topbar from "../components/topbar";
 
@@ -101,6 +102,7 @@ const Content = ({
 
 export default function BookingDetailsPage() {
   const navigate = useNavigate();
+  const { invalidateAppointments } = useContext(DataContext);
   const [status, setStatus] = useState("Pending");
   const [reasonNote, setReasonNote] = useState("");
   const { bookingId } = useParams();
@@ -132,6 +134,7 @@ export default function BookingDetailsPage() {
             pre_note: reasonNote,
           });
           console.log("Response:", response.data);
+          invalidateAppointments();
           navigate("/bookinginfo");
         } catch (error) {
           console.error("Error:", error);

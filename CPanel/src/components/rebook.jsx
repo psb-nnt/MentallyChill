@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
+import { DataContext } from '../context/DataContext';
 
 export default function Modal({ isOpen, onClose, onSubmit, userId, topicData, statusdata }) {
+  const { invalidateAppointments } = useContext(DataContext);
   const [staffList, setStaffList] = useState([]);
   const [selectedStaff, setSelectedStaff] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
@@ -87,6 +89,7 @@ export default function Modal({ isOpen, onClose, onSubmit, userId, topicData, st
 
     axios.post('/appointment/new', appointmentData)
       .then(response => {
+        invalidateAppointments();
         onSubmit(response.data);
         setFormSubmitted(true);
       })
